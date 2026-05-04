@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Las Recetas de Loli</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: Georgia, 'Times New Roman', serif;
+  background: #FAF5EF;
+  color: #3a3a3a;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+header {
+  text-align: center;
+  padding: 40px 20px 20px;
+  border-bottom: 1px solid #e8ddd4;
+}
+header h1 {
+  font-size: 2.4rem;
+  color: #9A6B4E;
+  font-weight: normal;
+  letter-spacing: 0.5px;
+}
+header p {
+  font-size: 1rem;
+  color: #8a7a6a;
+  font-style: italic;
+  margin-top: 6px;
+}
+.search-bar {
+  padding: 20px 0 10px;
+}
+.search-bar input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d4c4b4;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: Georgia, serif;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-bar input:focus {
+  border-color: #9A6B4E;
+}
+.categories {
+  padding: 10px 0 20px;
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.categories::-webkit-scrollbar { display: none; }
+.pill {
+  display: inline-block;
+  padding: 8px 16px;
+  margin: 4px 6px 4px 0;
+  border: 1px solid #d4c4b4;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-family: Georgia, serif;
+  cursor: pointer;
+  background: #fff;
+  color: #5a4a3a;
+  transition: all 0.2s;
+  user-select: none;
+}
+.pill:hover { border-color: #9A6B4E; }
+.pill.active {
+  background: #9A6B4E;
+  color: #fff;
+  border-color: #9A6B4E;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  padding-bottom: 40px;
+}
+@media (min-width: 640px) {
+  .grid { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 1024px) {
+  .grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.15s;
+  border: 1px solid #f0e8e0;
+}
+.card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+.card h3 {
+  font-size: 1.1rem;
+  color: #9A6B4E;
+  font-weight: normal;
+  margin-bottom: 8px;
+}
+.card .meta {
+  font-size: 0.82rem;
+  color: #8a7a6a;
+}
+.card .meta .cat {
+  display: inline-block;
+  background: #f5ece3;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-right: 8px;
+}
+.card .meta .src {
+  font-style: italic;
+}
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.recipe-detail {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  max-height: 90vh;
+  background: #FAF5EF;
+  z-index: 101;
+  border-radius: 16px 16px 0 0;
+  overflow-y: auto;
+  transform: translateY(100%);
+  transition: transform 0.35s ease;
+  padding: 0;
+}
+.recipe-detail.open {
+  transform: translateY(0);
+}
+@media (min-width: 1024px) {
+  .recipe-detail {
+    left: 50%;
+    transform: translate(-50%, 100%);
+    max-width: 700px;
+    bottom: 0;
+    border-radius: 16px 16px 0 0;
+  }
+  .recipe-detail.open {
+    transform: translate(-50%, 0);
+  }
+}
+.detail-inner {
+  padding: 30px 24px 40px;
+}
+.detail-inner .back-btn {
+  display: inline-block;
+  padding: 8px 16px;
+  border: 1px solid #d4c4b4;
+  border-radius: 6px;
+  font-family: Georgia, serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+  background: #fff;
+  color: #5a4a3a;
+  margin-bottom: 20px;
+  transition: border-color 0.2s;
+}
+.detail-inner .back-btn:hover { border-color: #9A6B4E; }
+.detail-inner h2 {
+  font-size: 1.8rem;
+  color: #9A6B4E;
+  font-weight: normal;
+  margin-bottom: 6px;
+}
+.detail-inner .detail-meta {
+  font-size: 0.9rem;
+  color: #8a7a6a;
+  margin-bottom: 20px;
+}
+.detail-inner .detail-meta .cat {
+  display: inline-block;
+  background: #f5ece3;
+  padding: 2px 10px;
+  border-radius: 10px;
+  margin-right: 8px;
+}
+.detail-inner .detail-meta .src {
+  font-style: italic;
+}
+.detail-inner .detail-meta .servings {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.85rem;
+}
+.detail-inner h4 {
+  font-size: 1.1rem;
+  color: #5a4a3a;
+  margin: 20px 0 10px;
+  border-bottom: 1px solid #e8ddd4;
+  padding-bottom: 4px;
+}
+.detail-inner ul {
+  list-style: disc;
+  padding-left: 20px;
+  margin-bottom: 10px;
+}
+.detail-inner ul li {
+  margin-bottom: 4px;
+  font-size: 0.95rem;
+}
+.detail-inner ol {
+  padding-left: 20px;
+  margin-bottom: 10px;
+}
+.detail-inner ol li {
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+.detail-inner .notes-box {
+  background: #f5ece3;
+  border-left: 3px solid #9A6B4E;
+  padding: 12px 16px;
+  border-radius: 0 8px 8px 0;
+  margin-top: 16px;
+  font-size: 0.9rem;
+  color: #5a4a3a;
+}
+.no-results {
+  text-align: center;
+  padding: 40px 20px;
+  color: #8a7a6a;
+  font-style: italic;
+}
+footer {
+  text-align: center;
+  padding: 30px 20px;
+  color: #b0a090;
+  font-size: 0.85rem;
+  border-top: 1px solid #e8ddd4;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Las Recetas de Loli</h1>
+    <p>Recetas de familia y clases de cocina</p>
+  </header>
+  <div class="search-bar">
+    <input type="text" id="search" placeholder="Buscar receta..." autocomplete="off">
+  </div>
+  <div class="categories" id="categories"></div>
+  <div class="grid" id="grid"></div>
+  <div class="no-results" id="no-results" style="display:none;">No se encontraron recetas.</div>
+</div>
+<footer>Hecho con amor &mdash; Familia Battro</footer>
+<div class="overlay" id="overlay"></div>
+<div class="recipe-detail" id="detail">
+  <div class="detail-inner" id="detail-inner"></div>
+</div>
+<script>
+const recipes = [{"name": "Gua cake de chocolate", "category": "Dulces", "source": "Juliana López May", "servings": null, "ingredients": [{"group": null, "items": ["Chocolate con leche semi amargo", "100 gr de azúcar", "100 gr de manteca", "110 gr de harina", "1 huevo", "Esencia de vainilla"]}], "steps": ["Poner el chocolate a baño María.", "Batir la manteca con el azúcar y luego agregar los huevos de a uno.", "Por último mezclar la harina y agregar el chocolate derretido.", "Volcar la preparación en los moldes mantecados y enharinados y hornear a 180° por 25 minutos.", "Sale crocante en su exterior y húmedo en el interior."], "notes": null}, {"name": "Zanahorias con coriandro y semillas", "category": "Ensaladas", "source": "Juliana López May", "servings": "4 personas y sobrantes", "ingredients": [{"group": null, "items": ["1 kg de zanahorias", "1 cucharada de semillas de comino", "1 cucharada de semillas de coriandro", "Sal y pimienta", "50 ml de aceite de oliva", "Miel c/n", "1 limón"]}, {"group": "Queso blanco", "items": ["1 bote de queso blanco", "Ralladura de 1 limón", "Perejil picado", "Semillas de coriandro y comino", "Sal y pimienta"]}], "steps": ["Lavar las zanahorias y dejarlas con la cáscara si son orgánicas y frescas. De lo contrario pelarlas y cortarlas a lo largo en dos.", "Colocar en una placa de horno juntas con la miel, las semillas, sal, pimienta, aceite de oliva y dorar en un horno medio.", "Rotarlas que queden doradas y crocantes al mismo tiempo.", "Se pueden comer a temperatura ambiente y servir con un mini bowl de queso blanco con hierbas para acompañar."], "notes": null}, {"name": "Pollo al curry con chips de banana", "category": "Carnes", "source": "Juliana López May", "servings": "4 personas", "ingredients": [{"group": null, "items": ["4 pechugas de pollo", "Curry", "Sal y pimienta", "Banana", "Manzana", "1 taza de azúcar"]}], "steps": ["Cortar las pechugas y cocinar en una sartén de ambos lados hasta que estén bien cocidas, pero no secas.", "Pisar pechuga y manteca. Cocinar en una procesadora o mixer.", "Cortar las pechugas en juliana, la banana, manzana cortada en cuadrados con cáscara, curry, sal y pimienta y mezclar.", "Armar una banderilla.", "Para las chips de banana: cortar y blanquear en agua hirviendo. Sumergir en aceite caliente."], "notes": "Manzana cortada en cuadrados con cáscara. Sin batir."}, {"name": "Papillote de salmón con almendras", "category": "Pescados", "source": "Juliana López May", "servings": "4 personas", "ingredients": [{"group": null, "items": ["4 filetes de salmón", "200 gr de panecitos", "2 cebollas coloradas", "2 huevos"]}], "steps": ["Cocinar en papillote en el horno fuerte por 30 minutos."], "notes": null}, {"name": "Tarta de almendras", "category": "Dulces", "source": "Juliana López May", "servings": null, "ingredients": [{"group": "Masa", "items": ["250 gr (o 200) de manteca", "100 gr de azúcar impalpable", "1 huevo"]}, {"group": "Relleno", "items": ["300 gr de azúcar", "100 gr de almendras activadas", "4 kg de almendras", "Claras de huevo", "1 huevo"]}], "steps": ["Precalentar el horno a 180° grados.", "Hacer la masa de tarta mezclando todos los ingredientes.", "Forrar el molde previamente enmantecado.", "Colocar la masa a blanco en el horno por 10 minutos.", "Preparar el relleno de almendras y completar la cocción."], "notes": null}, {"name": "Florentinos de almendras y chocolate", "category": "Dulces", "source": "Juliana López May", "servings": null, "ingredients": [{"group": null, "items": ["3/4 taza de azúcar común", "1/2 taza de crema de leche", "Almendras fileteadas", "200 gr de chocolate (70% de cacao)", "1 cucharada de naranjas o limones confitados (almibarados)", "2 cucharadas de harina", "2 cucharadas de avena"]}], "steps": ["Precalentar el horno a 130°C.", "Colocar en una olla: crema, azúcar, llevar a un hervor suave.", "Agregar las almendras y las nueces picadas. Mezclar bien.", "Colocar las porciones bien separadas sobre una placa de silicona y hornear hasta que estén doradas.", "Retirar y dejar enfriar sobre una rejilla.", "Derretir el chocolate a Baño María y cubrir la superficie de cada Florentino.", "Llevar al frío 15 minutos para que el chocolate tome firmeza."], "notes": null}, {"name": "Té de menta y jengibre", "category": "Otros", "source": "Juliana López May", "servings": "4 personas", "ingredients": [{"group": null, "items": ["5 tazas de agua", "4 cucharitas de miel", "Jengibre", "Menta fresca"]}], "steps": ["Colocar la menta en una olla y agregar las 5 tazas de agua.", "Llevar al fuego y dejar que hierva tapado por 10 minutos.", "Retirar del fuego y agregar el jengibre y miel.", "Excelente para el invierno. Si lo colamos se puede hacer té frío."], "notes": null}, {"name": "Bastoncitos de muzzarella", "category": "Entradas", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["Muzzarella en trozo", "1 huevo", "Harina", "Pan rallado", "Sal", "Pimienta"]}], "steps": ["Cortar la muzzarella en forma de bastones.", "Pasar cada bastón por harina. Fijarse que esté todo cubierto.", "Luego pasar por huevo condimentado con sal y pimienta y por último por pan rallado.", "Llevar un rato al freezer.", "Freír a último momento en abundante aceite caliente pero no hirviendo.", "Escurrir en papel absorbente."], "notes": null}, {"name": "Salsa de tomate y albahaca", "category": "Salsas", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["1 lata de tomates cubeteados", "1 cebolla", "1 cdta de aceto balsámico", "2 cdtas de azúcar", "1 puñado de albahaca", "Aceite de oliva", "Sal y pimienta"]}], "steps": ["Calentar el aceite y rehogar la cebolla.", "Agregar los tomates y el aceto. Salpimentar y bajar el fuego.", "Cocinar 10 minutos.", "Agregar el azúcar y la albahaca cortada finamente.", "Dejar reducir la salsa unos minutos."], "notes": null}, {"name": "Torta crumble de manzana y almendras", "category": "Dulces", "source": "Loli Battro", "servings": null, "ingredients": [{"group": "Masa", "items": ["150 gr de harina", "50 gr de azúcar impalpable", "60 gr de manteca", "Agua fría c/n", "Canela"]}, {"group": "Relleno", "items": ["5/6 manzanas verdes", "Jugo de medio limón", "3 cdas de azúcar", "30 gr de manteca", "30 gr de almendras", "Nuez moscada", "Canela"]}, {"group": "Crumble", "items": ["100 gr de manteca", "100 gr de harina", "100 gr de azúcar"]}], "steps": ["Masa: Colocar los ingredientes en la procesadora y unir con un poco de agua helada.", "Dejar descansar en la heladera. Estirar y forrar un molde.", "Pinchar y cocinar a blanco.", "Relleno: Preparar las manzanas con los ingredientes del relleno.", "Crumble: Mezclar manteca, harina y azúcar hasta formar un arenado grueso.", "Rellenar la tarta y cubrir con el crumble. Hornear hasta dorar."], "notes": null}, {"name": "Pan de ciruelas", "category": "Panes", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["1 taza de azúcar", "2 cdas de jugo de naranja", "1/3 taza de manteca blanda", "1 huevo", "1/3 taza de ciruelas cocidas picadas", "1 taza de leche", "1 taza de harina", "1 taza de harina integral fina", "2 tazas de harina", "2 cdtas de polvo de hornear", "1/2 cda de sal", "Canela", "Nuez moscada"]}], "steps": ["Mezclar el azúcar juntos con la manteca, las ciruelas picadas finamente y los líquidos.", "Agregar los ingredientes secos y las especias.", "Colocar en un molde de pan enmantecado y enharinado y hornear a 180 grados."], "notes": null}, {"name": "Abadejo en salsa azul", "category": "Pescados", "source": "Loli Battro", "servings": null, "ingredients": [{"group": "Pescado", "items": ["Abadejo 8 u", "Manteca 60 gr", "Vino blanco 1 taza", "Sal y pimienta c/n"]}, {"group": "Salsa", "items": ["Cebolla 1", "Queso roquefort 120 gr", "Manteca 50 gr", "Harina 50 gr", "Leche tibia 150 cc", "Crema 120 cc", "Sal y pimienta c/n"]}], "steps": ["Salpimentar los filets y colocarlos en una asadera con manteca y vino blanco. Asar en el horno.", "Cortar la cebolla doble cincelado. Desgranar el queso.", "Sudar hasta tiernizar la cebolla con la manteca.", "Agregar la harina y hacer un roux claro.", "Incorporar la leche tibia y cocinar unos minutos.", "Añadir la crema y el queso desgranado para que se disuelva.", "Rectificar la sazón. Filtrar."], "notes": null}, {"name": "Galletitas de chocolate", "category": "Dulces", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["110 gr de manteca", "150 gr de azúcar rubia (1 taza)", "75 gr de azúcar", "1 huevo", "1 cdta de esencia de vainilla", "1 y 1/2 cdta de café", "1 cdta de royal", "1/2 cdta de sal", "125 gr de harina", "88 gr de harina integral", "100 gr de chocolate"]}], "steps": ["Batir la manteca junto con las dos clases de azúcar hasta lograr una crema.", "Agregar el huevo. Batir.", "Agregar la esencia, el café, la sal, el royal y las dos harinas.", "Integrar todo bien y luego añadir el chocolate picado grueso.", "Usando dos cucharas colocar porciones en una placa forrada con papel manteca.", "Cocinar en horno a 180°C hasta que los bordes estén apenas dorados.", "Retirar del horno y dejar reposar en una rejilla."], "notes": null}, {"name": "Mousse de salmón ahumado", "category": "Entradas", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["200 gramos de salmón ahumado", "200 gramos de queso crema", "100 gramos de crema", "2 limones", "2 paltas", "Perejil"]}], "steps": ["Poner el queso crema, salmón y crema en la procesadora y trabajar hasta que quede suave.", "Agregar el jugo de un limón y la cáscara de medio limón. Salpimentar.", "Pisar las paltas con jugo de limón, sal y pimienta.", "Armar los shots con el paté por debajo y una capa de palta por arriba."], "notes": null}, {"name": "Pastel de cordero", "category": "Carnes", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["1 pierna de cordero deshuesada", "2 zanahorias", "2 tallos de apio", "2 cebollas", "Aceite de oliva c/n", "Manteca c/n", "Tomillo", "Romero", "Sal y pimienta, paprika", "Vino 1/2 vaso", "1 kilo de boniato zanahoria", "2 cdas de azúcar", "2 vasos de leche"]}], "steps": ["Cortar la carne en trozos pequeños. Cortar la cebolla y la zanahoria y el apio en brunoise.", "Pelar y cortar el boniato en cuadrados. Cocinar el boniato en leche, azúcar y un poco de agua junto con un poco de sal.", "Cuando esté tierno, colar, pisar y formar un puré. Condimentar.", "Dorar la carne en una sartén de a tandas, reservar.", "En la misma sartén dorar las verduras en aceite y un poco de manteca. Condimentar.", "Cuando esté pronto, agregar la carne y un poco de vino. Dejar evaporar el alcohol.", "Condimentar con tomillo, romero, sal pimienta y paprika.", "Colocar en una asadera. Primero la carne y por encima el puré de boniato."], "notes": null}, {"name": "Doble pechuga rellena con salsa de hongos", "category": "Carnes", "source": "Loli Battro", "servings": null, "ingredients": [{"group": "Pechuga", "items": ["Doble pechuga 2 u", "Cebolla 1 chica", "Espinaca 1/2 atado", "Aceite de girasol c/n", "Crema de leche 4 cuch", "Vino blanco", "Caldo de ave 1/3 taza", "Manteca 30 gr", "Sal, pimienta"]}, {"group": "Salsa", "items": ["Cebolla 1/2", "Hongos secos 1 paquete", "Perejil 1 cuch", "Manteca 30 gr", "Vino blanco c/n", "Caldo de verduras 1/4 de taza", "Crema de leche 1 taza", "Sal y pimienta c/n"]}], "steps": ["Lave y corte la espinaca chiffonade bien fina. En una sartén saltar la cebolla doble cincelado hasta transparentar. Agregue la espinaca cruda y rehogue unos minutos. Salpimiente y agregue un poco de crema. Reduzca, retire y deje enfriar.", "Rellene con esta preparación la pechuga, salpimentada previamente. Séllelas en una sartén con el lado abierto hacia abajo. Retirar y poner en una asadera con un poco de vino, caldo y trozos de manteca. Asar a fuego mediano en el horno durante 20 minutos aprox.", "Para la salsa: En la sartén donde sellamos las pechugas saltear la cebolla con un poco mas de manteca.", "Desglasar con el vino y dejar evaporar bien todo el alcohol.", "Agregar el caldo, la crema y los hongos previamente hidratados, dejar hervir bien suave hasta que logre el punto de salsa.", "A último momento agregar el perejil picado. Rectificar la sal y la pimienta."], "notes": null}, {"name": "Granola", "category": "Otros", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["500 gr de avena", "100 gr de girasol", "100 gr de almendras", "100 gr de castañas de cajú", "100 gr de sésamo", "100 gr de quinoa", "1/2 taza de azúcar orgánica", "1/2 taza de miel"]}], "steps": ["Tostar por separado todos los ingredientes durante unos 5 minutos.", "Mezclarlos en una olla grande y llevarlos al fuego.", "Una vez caliente, agregar azúcar y dejar que se derrita.", "En ese momento agregar la miel y revolver por unos minutos hasta que se disuelvan los ingredientes.", "Por último volcar sobre una mesada en caliente y desarmar los pedazos antes de que se enfríe por completo."], "notes": null}, {"name": "Tarta rústica de peras", "category": "Dulces", "source": "Loli Battro", "servings": null, "ingredients": [{"group": "Masa sucrée", "items": ["300 gr de harina", "100 gr de azúcar impalpable", "120 gr de manteca", "Agua fría c/n"]}, {"group": "Relleno", "items": ["6 peras", "100 gr de manteca", "200 gr de azúcar", "1 cdta de extracto de vainilla", "1 cdta de canela", "Jugo de 1/2 limón"]}], "steps": ["Masa: Colocar la harina, la manteca y el azúcar en la procesadora. Cuando esté el arenado pronto agregar el agua de a poco. Dejar reposar en la heladera.", "Relleno: Pelar y cortar las peras en cubos. Calentar la sartén con la manteca y el azúcar, poner las peras y cocinar por 8/10 minutos, hasta que estén tiernas.", "Saborizar con la vainilla, la canela y el limón. Dejar enfriar.", "Estirar la masa. Formar tartas del tamaño deseado. Colocar el relleno en el medio y levantar los bordes hacia el centro dejando que se vea el relleno.", "Hornear a 180°C hasta que la masa esté dorada. Decorar con azúcar impalpable."], "notes": null}, {"name": "Cheesecake", "category": "Dulces", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["1 pote de queso crema", "1/2 lt de crema", "1 taza de azúcar", "1/2 sobre de gelatina sin sabor", "1 paquete de galletitas Chiquilín", "100 grs de manteca"]}], "steps": ["Moler las galletitas con la manteca, ponerlas en un molde desmontable, aplastar con la mano y llevar al horno por unos 10 min para que amalgame la masa, dejar enfriar.", "Mezclar el queso crema con el azúcar, no mucho para que el queso no se licue y reservar.", "Batir la crema hasta que quede bien firme.", "Disolver la gelatina sin sabor en poco agua caliente, agregar a la mezcla del queso y luego incorporar la crema, mezclando suavemente.", "Poner este relleno sobre la masa de galletitas y refrigerarlo hasta que quede firme.", "Antes de servir, ponerle una salsa de frambuesa, frutilla, naranja, etc. Si quieres que ésta se te amolde, agregar un poco de gelatina sin sabor disuelta y ponerlo en la heladera."], "notes": null}, {"name": "Alfajores de maicena", "category": "Dulces", "source": "Loli Battro", "servings": "Rinde 40", "ingredients": [{"group": null, "items": ["200 gr de harina", "300 gr de almidón de maíz", "1/2 cdta de bicarbonato", "2 cdtas de polvo de hornear", "200 gr de manteca", "150 gr de azúcar", "3 yemas", "1 cdta de esencia de vainilla", "Ralladura de 1 limón", "Dulce de leche c/n", "Coco rallado c/n"]}], "steps": ["Unir en un bol el almidón con la harina, el bicarbonato y el polvo de hornear.", "Batir la manteca con el azúcar hasta que blanquee; incorporar las yemas de a una por vez.", "Agregar la esencia y la ralladura de limón y finalmente poco a poco y con movimientos envolventes, agregar los secos.", "Volcar la masa sobre la mesada espolvorada con almidón y seguir trabajándola hasta formar un bollo liso.", "Estirarla y cortar discos de 4 cm de diámetro, colocarlos sobre una placa limpia para horno dejando espacio entre ellos.", "Cocinarlos en horno moderado hasta que estén apenas dorados.", "Dejarlos enfriar, unirlos de a dos con dulce de leche y terminarlos con coco rallado."], "notes": null}, {"name": "Strogonoff", "category": "Carnes", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["Cabeza o cola de lomo 150 gr", "Cebolla 30 gr", "Champiñones 50 gr", "Laurel 1 hoja", "Tomillo 1 gr", "Perejil 2 gr", "Harina 50 gr", "Aceite 15 cc", "Vino blanco 50 cc", "Crema 100 cc", "Mostaza de Dijon 3 gr", "Paprika 1 gr", "Sal y pimienta c/n"]}], "steps": ["Limpiar la carne y cortarla en cubos de 1 cm de lado. Reservar.", "Cortar la cebolla en emincé. Cortar los champiñones en cuartos.", "Armar un bouquet garni.", "Enharinar los cubos de carne justo antes de cocinar. Saltear la carne en aceite a fuego fuerte para que se dore. Retirar y reservar.", "Saltear la cebolla. Agregar el vino blanco y dejar reducir.", "Incorporar la carne y agregar la crema, el bouquet, la mostaza y la paprika. Salpimentar.", "Guisar por espacio de 10 minutos. Agregar los champiñones y guisar por tres minutos más."], "notes": null}, {"name": "Vasitos de mousse de atún con concassé de tomates", "category": "Entradas", "source": "Loli Battro", "servings": "Rinde 12 vasitos", "ingredients": [{"group": null, "items": ["2 latas de atún en aceite (aprox. 120 g c/u)", "Ralladura de 1 limón", "Jugo de 1/2 limón", "1 cda de mostaza", "200 g de queso crema", "100 ml de crema de leche", "2 cdas de queso parmesano rallado", "1 cda de aceite de oliva", "1/2 sobre de gelatina sin sabor (3.5 g)", "2 tomates sin semillas cortados en cubitos", "4 cdas de perejil picado", "Sal"]}], "steps": ["Con el procesador o la licuadora, procesar el atún con la ralladura de limón, la mostaza, el queso crema, la crema de leche, el queso parmesano y el aceite de oliva.", "En una taza, hidratar la gelatina en el jugo de limón. Calentarla en el microondas durante 20 segundos, y agregarla a la preparación de atún.", "Mezclar hasta integrar perfectamente. Colocar la preparación en vasitos individuales.", "Mezclar los tomates picados con el perejil y condimentar con un chorrito de aceite de oliva y sal. Distribuir sobre los vasitos.", "Llevar al refrigerador durante una hora."], "notes": "Variante: Vasitos de mousse de palta con concassé de tomates: reemplazar el atún por 250 g de pulpa de palta pisada, agregándole jugo de 1/2 limón para que no se oxide."}, {"name": "Cerdo con morrón y calabaza", "category": "Carnes", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["1 kg de cerdo en trozo, no bifes", "400 grs de calabaza pelada en dados de 2x2", "200 grs de champiñones frescos", "6 cdas de salsa de soja", "3 cdas de miel", "1 taza de vino blanco", "3 cdas de semillas de sésamo", "4 cdas de aceite de oliva", "Sal y pimienta", "1 cebolla", "1 morrón rojo", "1 morrón amarillo", "1 morrón verde", "100 grs de manteca"]}], "steps": ["Cocinar la calabaza en dados al vapor 5/8 minutos, hasta que esté tierna pero resistente.", "Cortar el cerdo en dados. Limpiar los champiñones.", "Sellar la calabaza en sartén con aceite de oliva y manteca, reservar; sellar el cerdo, reservar; sellar los champiñones en manteca.", "Dorar la cebolla y los morrones en trozos de 1.5 x 1.5.", "Deglazar el sartén con el vino, dejar reducir, agregar la salsa de soja, miel, pimienta y sal, y demás ingredientes.", "Amalgamar con 50 grs de manteca.", "Servir todo salseado, espolvoreada con semillas de sésamo."], "notes": null}, {"name": "Pan pizza", "category": "Panes", "source": "Gran Diploma de Pastelero - Panadería", "servings": null, "ingredients": [{"group": "Amasijo", "items": ["Harina 1 Kg", "Sal 25 gr", "Levadura 50 gr", "Aceite oliva 100 cc", "Agua 600 cc"]}, {"group": "Agregado", "items": ["Tomate triturado 100 cc", "Mozzarella en fetas 150 gr"]}], "steps": ["Formar una corona con toda la harina en la mesada de trabajo. Colocar en la parte externa la sal.", "En el centro de la corona incorporar la levadura y el agua, mezclar un poco de harina y por último agregar el aceite.", "Amasar hasta lograr una masa uniforme.", "Tapar y dejar descansar. Cortar el tamaño de piezas deseado y dejar levar.", "Colocar en placas previamente aceitadas y estirar a mano. Dejar levar.", "Cocción: Temperatura de cocción 200°C."], "notes": null}, {"name": "Supremas glaseadas rellenas de espinaca y queso", "category": "Carnes", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["1 suprema de pollo", "150 grs de gruyerito o gruyere", "1 atado de espinacas", "Jugo de 5 naranjas", "1 cebolla", "1 cda de manteca", "1 cda de miel"]}], "steps": ["Cortar la suprema en 2, a cada una hacerle un corte tipo bolsillo.", "En cada bolsillo colocar hojas de espinaca y el queso rallado grueso, salpimentar.", "Sellarlas en sartén bien caliente. Terminar la cocción en el horno.", "En la misma sartén agregar la manteca y un chorro de aceite.", "Saltear la cebolla cortada bien chiquita.", "Exprimir las naranjas y agregar el jugo, la ralladura y la miel en la sartén.", "Salpimentar y cocinar a fuego bajo hasta que tome cuerpo.", "Si es necesario agregar una cdta de maicena disuelta para espesar."], "notes": null}, {"name": "Paté de huevo al curry", "category": "Entradas", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["3 huevos", "1/2 cebolla", "1 cda de manteca", "1 cda de mayonesa", "1/2 cdta de curry", "Aceite de oliva", "Sal y pimienta", "Orégano fresco"]}], "steps": ["Cocinar los huevos a partir de agua fría por 10 minutos.", "Cortar la cebolla en brunoise.", "Pisar los huevos junto con la cebolla, manteca, mayonesa, curry, oliva, sal y pimienta.", "Untar cada galletita con el paté y por último decorar con orégano fresco."], "notes": null}, {"name": "Budín de zanahoria", "category": "Guarniciones", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["300 gr de puré de zanahoria", "2 cdas de queso rallado", "2 huevos", "2 cdas de queso crema", "Pan rallado c/n", "Sal, pimienta", "Nuez moscada"]}], "steps": ["Procesar el puré con los huevos, el queso y el queso crema.", "Salpimentar y condimentar con nuez moscada.", "Colocar en moldes individuales previamente espolvoreados con pan rallado.", "Cocinar a baño maría en el horno por 35/40 minutos aproximadamente."], "notes": null}, {"name": "Profiteroles", "category": "Dulces", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["200 cc de agua", "70 gr de manteca", "Sal c/n", "180 gr de harina", "3-4 huevos", "Dulce de leche c/n", "100 gr de chocolate", "50 gr de manteca (para ganache)"]}], "steps": ["Llevar a punto de ebullición el agua con la sal y la manteca.", "Agregar toda la harina de golpe e incorporar rápidamente con cuchara de madera.", "Cocinar unos instantes hasta que se seque la preparación.", "Retirar del fuego, bajar la temperatura de la masa y agregar los huevos de a uno hasta lograr una crema brillante pero firme.", "Poner la preparación en una manga de pico liso de 1 cm.", "Armar bombas de 2 cm de diámetro y hornear a horno fuerte al principio y cuando ya subió bajar el horno y cocinar hasta que se sequen.", "Una vez cocinada dejar enfriar y rellenar con dulce de leche, crema batida, crema pastelera o helado de crema.", "Decorar con chocolate o caramelo."], "notes": null}, {"name": "Ojo de bife en salsa Malbec", "category": "Carnes", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["1kg Ojo de bife (o cuadril de ternera, o lomo)", "250 grs de panceta ahumada en trozo", "1/2 lt de vino Malbec", "50 grs de manteca", "1 cda de Garam Masala", "2 cebollines de verdeo", "2 cdas de miel", "200 grs de champiñones frescos"]}], "steps": ["Saltar la cebolla de verdeo picada en sartén con aceite de oliva, agregar la panceta en dados, dorar, reservar.", "Agregar 2 cdas de manteca y sellar los champiñones, volver todo a la sartén.", "Agregar el vino y la miel y dejar reducir hasta formar un syrup.", "En caso de usar hongos secos, dejarlos en un vaso de agua tibia 10 minutos, escurrir, picar y agregarlos.", "Sellar la carne de ambos lados y terminar la cocción en horno.", "Cuando la salsa está pronta agregar 1 cda de Garam Masala y las 2 cdas de manteca, amalgamar.", "Colocar la carne, salsear, y servir."], "notes": null}, {"name": "Papas quiméricas", "category": "Guarniciones", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["6 papas", "Sal", "Pimienta", "Pimentón", "50 gr Manteca", "100 gr Queso gruyere", "Nuez moscada", "Crema de leche 50 cc"]}], "steps": ["Hacer un puré con las papas. Salpimentar, condimentar con nuez moscada y pimentón.", "Secar sobre fuego suave si está muy blando.", "Rallar el queso.", "Hacer pequeñas bolas con el puré, realizarles un orificio, rellenarlos con crema de leche y cubrir con queso rallado.", "Llevar a horno o gratinadora."], "notes": null}, {"name": "Salmón en croûte de mostaza", "category": "Pescados", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["4 porciones de salmón de 200 gr", "4 rodajas de pan lactal blanco sin corteza", "Sal y pimienta", "2 cdas de manteca blanda", "1 cda de mostaza de Dijon", "2 cdas de mostaza en grano", "2 cdas de tomillo fresco"]}], "steps": ["Precalentar el horno. Desmenuzar el pan en la procesadora. Salpimentar el salmón.", "En un bowl mezclar el pan con la manteca, las mostazas, el tomillo. La mezcla tiene que quedar integrada con la manteca. Salpimentar.", "Enmantecar un lado del salmón. Precalentar una sartén.", "Añadir el salmón con el lado enmantecado hacia abajo. Cocinar sin mover por dos minutos, mientras se hace una costra.", "Disponer la mezcla de las mostazas encima del salmón y traspasarlo a la grilladora.", "Grillar por 4/5 minutos hasta que el pan esté crocante. Servir inmediatamente."], "notes": null}, {"name": "Verduras al wok", "category": "Guarniciones", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["1 morrón rojo", "1 morrón verde", "1 cebolla grande", "2 zanahorias", "2 puerros", "Sal y pimienta", "Salsa de soja", "1 cda de miel"]}], "steps": ["Cortar todas las verduras en finas tiras (juliana).", "Calentar el wok y agregarle un poco de aceite.", "Cocinar las cebollas y los morrones por unos minutos, agregar las zanahorias y por último los puerros.", "Cuando estén casi prontas agregar la salsa de soja y la miel.", "Cocinar por unos minutos más. Rectificar la sal."], "notes": null}, {"name": "Carrot cake", "category": "Dulces", "source": "Loli Battro", "servings": null, "ingredients": [{"group": "Torta", "items": ["3/4 tazas de azúcar rubia", "1/4 taza de azúcar", "1 taza de aceite neutro", "3 huevos", "Cáscara de una naranja rallada", "1 cdita de canela", "1/2 cdita de jengibre en polvo", "2 tazas de harina", "1 cda de royal", "2 tazas de zanahorias ralladas finas (más o menos 4)", "3/4 tazas de nueces molidas"]}, {"group": "Baño", "items": ["2 tazas de azúcar impalpable", "2 cdas de jugo de limón"]}], "steps": ["Calentar el horno a 180 grados. Enmantecar tortera de 20 cm de diámetro.", "Batir el azúcar, las dos, los huevos y el aceite. Agregar la ralladura de naranja, canela y jengibre.", "Tamizar la harina sobre la mezcla y entreverar sin batir.", "Agregar las zanahorias y las nueces. Colocar en la tortera.", "Hornear durante 60 u 80 minutos, hasta que un escarbadientes salga limpio.", "Enfriar completamente antes de desmoldar.", "Baño: Mezclar el azúcar impalpable con el jugo de limón hasta lograr una consistencia untable."], "notes": null}, {"name": "Entrecôte con salsa de mostaza", "category": "Carnes", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["4 medallones de entrecôte de 200 gr c/uno", "2 echalotes", "20 gr de manteca", "1 taza de vino blanco", "1 taza de caldo de verduras", "250 cc de crema", "Curry", "Paprika", "Sal y pimienta", "2 cdas de mostaza de Dijon", "Ciboulette"]}], "steps": ["Desgrasar los bifes, bridar y reservar en la heladera cubierto con film.", "Sellar en una sartén con aceite fuerte. Salpimentar, y terminar la cocción en el horno.", "Cortar los echalotes en brunoise. Picar la ciboulette.", "En la sartén donde se sellaron los bifes sudar el echalote con un poco de manteca a fuego suave. Salar.", "Desglasar con vino blanco y dejar reducir.", "Agregar el caldo y la crema. Después de unos minutos agregar la mostaza y los condimentos.", "Dejar reducir hasta que la salsa tome su punto. Rectificar sal y pimienta.", "Apagar el fuego y agregar el ciboulette."], "notes": null}, {"name": "Papines al romero", "category": "Guarniciones", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["Papines", "Sal", "Aceite", "Pimienta", "Ramas de romero"]}], "steps": ["Hervir los papines con un poco de sal.", "Cuando todavía les falta un poco colarlos y enfriarlos enseguida en agua fría para cortar la cocción.", "Cortar los papines al medio y condimentar con sal, aceite y pimienta.", "Calentar una sartén con un poco de aceite. Agregar ramas de romero.", "Sellar los papines del lado plano."], "notes": null}, {"name": "Torta de chocolate con frambuesas", "category": "Dulces", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["Manteca 75 gr", "Harina 40 gr", "Huevos 3", "Azúcar 135 gr", "Chocolate 150 gr", "Dulce de leche c/n", "Frambuesas 250 gr", "Crema doble 250 cc"]}], "steps": ["Derretir el chocolate con la manteca.", "Batir los huevos con el azúcar y agregar el chocolate.", "Incorporar la harina con movimientos envolventes y volcar la preparación en un molde enmantecado y enharinado.", "Cocinar en horno precalentado fuerte.", "Batir la crema a punto chantilly.", "Cubrir la torta con una buena capa de dulce de leche.", "Cubrir con la crema y por último disponer las frambuesas. Refrigerar."], "notes": null}, {"name": "Tarta de calabaza", "category": "Tartas", "source": "Loli Battro", "servings": null, "ingredients": [{"group": "Masa", "items": ["100 gr de manteca", "200 gr de harina", "3 cdas de queso rallado", "Sal", "Pimienta", "4-5 cdas de agua fría"]}, {"group": "Relleno", "items": ["1 calabaza", "Leche c/n", "3 cdas de azúcar", "Nuez moscada", "3 huevos", "1/2 taza de queso crema"]}], "steps": ["Hervir la calabaza cortada en cubos en un poco de leche. Condimentar con sal, azúcar.", "Una vez cocida hacer un puré y condimentar con sal, pimienta y nuez moscada.", "Agregar 3 huevos batidos y el queso crema. Reservar.", "Para la masa deshacer la manteca en la harina y el queso rallado. Condimentar con sal y pimienta.", "Unir con el agua fría. Dejar descansar en la heladera por media hora.", "Estirar y colocar en la tartera. Cocinar a blanco.", "Sacar del horno, rellenar con la mezcla de huevo y calabaza y hornear."], "notes": null}, {"name": "Tarta de pollo y hongos", "category": "Tartas", "source": "Loli Battro", "servings": null, "ingredients": [{"group": "Masa", "items": ["100 gr de manteca", "200 gr de harina", "3 cdas de queso rallado", "Sal", "Pimienta", "4-5 cdas de agua fría"]}, {"group": "Relleno", "items": ["1 pechuga de pollo", "100 gr de champiñones", "1 cebolla", "1 cda de mostaza de Dijon", "1/2 taza de crema", "1/2 taza de vino blanco", "1 cdta de curry", "1 cdta de paprika", "3 huevos", "1/2 taza de queso crema"]}], "steps": ["Cortar la pechuga en bifes más finos y sellar en una sartén. Reservar.", "Saltear la cebolla cortada en emincé. Reservar.", "Saltear los hongos y reservar. Cortar el pollo en cuadraditos.", "Poner todo junto en la sartén y desglasar con el vino.", "Agregar la mostaza y condimentar con sal, curry y paprika. Agregar la crema.", "Dejar enfriar y agregar los huevos y el queso crema.", "Para la masa deshacer la manteca en la harina y el queso rallado. Condimentar. Unir con agua fría.", "Descansar en heladera por media hora. Estirar y colocar en la tartera. Cocinar a blanco.", "Rellenar con la mezcla de pollo y hornear."], "notes": null}, {"name": "Gnocchi bomba de espinaca", "category": "Pastas", "source": "Loli Battro", "servings": null, "ingredients": [{"group": "Gnocchi", "items": ["Espinaca 75 gr", "Manteca 75 gr", "Sal", "Agua 750 ml", "Harina 300 gr", "Huevos 4 o 5"]}, {"group": "Salsa", "items": ["Champiñones 150 gr", "Panceta 150 gr", "Queso parmesano 60 gr", "Vino blanco 50 cc", "Crema 300 ml", "Mostaza Dijon", "Curry", "Sal y pimienta"]}], "steps": ["Cortar la espinaca. Calentar el agua con sal, la espinaca y la manteca.", "Cuando está por hervir procesar la espinaca y llevar al fuego otra vez.", "Cuando rompe el hervor agregar toda la harina de golpe, bajar el fuego y revolver.", "Cuando se separa del fondo, sacar del fuego y empezar a agregar los huevos de a uno.", "Colocar la masa en una manga, reservar en la heladera.", "En una cacerola con agua hirviendo salada cortar los gnocchi. Llevar a hervor rápido, escurrir y refrescar en agua fría.", "Salsa: Saltear la panceta en cubos, incorporar los champiñones en láminas.", "Desglasar con vino blanco. Agregar la crema, bajar el fuego.", "Agregar la mostaza, el curry y el queso. Incorporar los gnocchi y calentar en la salsa."], "notes": null}, {"name": "Pancitos de manteca", "category": "Panes", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["1 kg de harina", "30 gr de levadura fresca", "2 cucharadas de azúcar", "3 cucharadas de sal", "700 cc de leche tibia", "100 gr de manteca blanda", "Orégano c/n", "1 huevo", "Semillas de sésamo c/n"]}], "steps": ["Colocar la harina en forma de corona con la sal por fuera.", "En un bowl disolver la levadura con un poco de leche tibia y el azúcar.", "Hacer un hueco en el centro de la corona y agregar la levadura disuelta. Empezar a amasar agregando el resto de la leche.", "Cuando se hayan integrado todos los ingredientes agregar la manteca y amasar enérgicamente. Agregar el orégano.", "Cuando la masa esté lisa armar un bollo y dejar descansar tapada hasta que doble su volumen (1 hora).", "Desgasificar y formar los bollos.", "Colocar en una fuente para horno, pintar con huevo y espolvorear con semillas de sésamo.", "Dejar levar 15 minutos nuevamente y cuando doblan su volumen cocinar en horno a 180°C por 20 minutos aproximadamente.", "Dejar enfriar en una rejilla."], "notes": "Si están congelados poner con el horno bien caliente."}, {"name": "Champiñones rellenos", "category": "Entradas", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["500 g de champiñones grandes (tamaño N°4)", "2 cebollitas de verdeo", "40 g de manteca", "1 pocillo de vino blanco", "1 cucharada de pan rallado", "2 cucharadas de crema de leche", "70 g de jamón cocido picado", "80 g de queso gruyère", "2 cucharadas de queso parmesano rallado", "300 g de crema de leche", "Sal y pimienta"]}], "steps": ["Con la mano, retire el tallo de los champiñones y resérvelos.", "Enjuague el resto y déles un hervor de medio minuto en agua con una pizca de sal. Retire y déles un golpe de agua fría. Escurra bien.", "Rehogue en una sartén la manteca, la cebolla picada y el vino. Una vez absorbido el vino, añádale los tallitos de los champiñones previamente picados.", "Cocine la preparación durante un par de minutos, revolviendo de vez en cuando.", "Retire del fuego y agregue el perejil, el jamón y los quesos. Sazone la mezcla.", "Si lo nota muy blando, añádale una cucharada de pan rallado. Si es demasiado consistente, agregue unas cucharadas de crema de leche.", "Rellene los champiñones y colóquelos en una fuente de horno, espolvoréelos con queso parmesano.", "Gratine los champiñones en horno caliente y una vez dorados, retire y sirva."], "notes": null}, {"name": "Paté de hígado de pollo", "category": "Entradas", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["500 gr de hígado de pollo", "2 cebollas grandes picadas", "500 gr de panceta ahumada", "1 vaso de vino", "250 cc de crema de leche", "50 gr de manteca", "Sal, pimienta, paprika"]}], "steps": ["Colocar la manteca en una olla. Cocinar la cebolla.", "Cortar los hígados y agregarlos a la cebolla cocida. Dorar.", "Agregar la panceta cortada en lardons. Cocinar unos minutos.", "Agregar el vino y dejar evaporar.", "Agregar la crema y condimentar.", "Dejar cocinar a fuego bajo por unos 15/20 minutos.", "Apagar el fuego y dejar entibiar.", "Procesar y colocar en un molde. Llevar a la heladera con un film tapando la superficie."], "notes": null}, {"name": "Pretzels de chocolate", "category": "Panes", "source": "Gran Diploma de Pastelero - Panadería II - Gato Dumas", "servings": null, "ingredients": [{"group": "Esponja", "items": ["Harina 125 gr", "Leche 80 cc", "Levadura 25 gr"]}, {"group": "Amasijo", "items": ["Harina 375 gr", "Sal 7 gr", "Azúcar 100 gr", "Manteca 150 gr", "Huevos 1 u", "Leche 125 cc"]}, {"group": "Agregado", "items": ["Gotitas de chocolate 200 gr"]}], "steps": ["Formar una corona con la harina de la esponja. En el centro colocar la leche y la levadura. Mezclar y amasar. Tapar y dejar levar.", "Formar una corona con la harina del amasijo. En el centro colocar sal, azúcar, manteca, huevos y leche. Mezclar y amasar. Tapar y dejar descansar.", "Cuando la esponja duplique el volumen unir al amasijo, mezclar y amasar hasta lograr una masa uniforme.", "Incorporar las gotitas de chocolate.", "Cortar las piezas del tamaño deseado. Dar formas, estibar en placas y dejar levar.", "Pintar con huevo batido. Cocción a 200°C."], "notes": null}, {"name": "Cheesecake de chocolate blanco", "category": "Dulces", "source": "Loli Battro", "servings": null, "ingredients": [{"group": "Masa", "items": ["250 grs de galletitas María", "150 grs de manteca"]}, {"group": "Relleno", "items": ["200 grs de ricota (la que es bien mojada, Conaprole en pote)", "250 grs de azúcar", "300 grs de queso crema (Casancrem)", "300 grs de queso Philadelphia (2 paquetitos)", "250 ml de crema de leche", "6 huevos", "1 cdita de vainilla", "300 grs de chocolate blanco"]}, {"group": "Baño", "items": ["500 grs de frutos del bosque (arándanos, frambuesas, moras, frutillas)", "300 grs de mermelada de frutos del bosque o frutilla", "2 cdas de jugo de limón", "2 cdita de canela"]}], "steps": ["Masa: Moler las galletas y colocarlas en un bowl junto con la manteca derretida, mezclar bien.", "Volcar en tartera desmontable y apretar bien contra el fondo y un poco a los costados.", "Cocinar en el horno a 200 grados durante 5 o 7 minutos. Retirar y dejar enfriar.", "Relleno: Batir la ricota con 200 grs de azúcar hasta que quede cremosa.", "Añadir el queso crema, el queso Philadelphia y la crema de leche.", "Incorporar los huevos y la vainilla a la mezcla.", "Picar el chocolate y derretirlo. Agregarlo a la preparación y volcar sobre la base de galletitas.", "Cocinar en horno precalentado a 180 grados durante 1 hora o hasta que esté firme en los bordes y apenas blanda en el centro.", "Apagar el horno y dejarla enfriar dentro. Una vez fría desmoldarla.", "Baño: Colocar la mermelada y el jugo en una ollita hasta hervir, condimentar con la canela. Dejar enfriar.", "Colocar encima de la torta y luego las frutas frescas, espolvorear con azúcar impalpable."], "notes": null}, {"name": "Crème brûlée de chocolate blanco", "category": "Dulces", "source": "Loli Battro", "servings": "6 porciones", "ingredients": [{"group": null, "items": ["1/2 lt de crema doble", "Vainilla", "200 grs de chocolate blanco picado", "6 yemas", "1/3 taza de azúcar"]}], "steps": ["Calentar la crema con la vainilla.", "Agregar el chocolate blanco, revolver hasta disolver.", "Agregar las yemas de a una y mezclar con cuchara de madera hasta que se adhiera a la parte de atrás de la cuchara.", "Colocar la mezcla en 6 ramekins y llevar a la heladera una vez frío.", "Espolvorear con azúcar y quemar con soplete en el momento de comer."], "notes": "Cacao Montesori o La Abundancia para variantes con chocolate."}, {"name": "Salchichón de chocolate", "category": "Dulces", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["1 kg dulce de leche", "1 taza azúcar impalpable", "300 gr galletitas María", "150 gr de cacao amargo Montesori o La Abundancia", "200 gr manteca"]}], "steps": ["Mezclar el dulce de leche con el azúcar impalpable.", "Romper las galletitas en trozos.", "Derretir la manteca e incorporar el cacao.", "Mezclar todo junto, dar forma de salchichón y envolver en film.", "Llevar a la heladera hasta que esté firme."], "notes": null}, {"name": "Volcán de chocolate con salsa de frutillas", "category": "Dulces", "source": "Loli Battro", "servings": null, "ingredients": [{"group": "Volcán", "items": ["Manteca 170 g", "Chocolate 180 g", "Huevos 4", "Azúcar 80 g", "Harina 50 g"]}, {"group": "Salsa de frutillas", "items": ["Frutillas 3 tazas", "Azúcar 100 g", "Manteca 1 cda", "Vino blanco dulce 50 ml", "Pimienta negra una pizca"]}, {"group": "Almíbar de menta", "items": ["Azúcar 100 g", "Agua 100 ml", "Menta fresca 30 g"]}], "steps": ["Fundir la manteca con el chocolate a baño de María o en microondas.", "Batir los huevos con el azúcar e incorporarlos a la mezcla de chocolate.", "Agregar la harina tamizada.", "Volcar la preparación en moldecitos individuales untados con manteca.", "Hornear a temperatura fuerte por 5 minutos aproximadamente. El centro debe quedar cremoso.", "Salsa: Cocinar las frutillas con azúcar, manteca, vino y pimienta.", "Almíbar: Hervir azúcar con agua y menta fresca."], "notes": null}, {"name": "Solomillo de cerdo con rúcula, provolone y jamón crudo", "category": "Carnes", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["2 lomitos de cerdo (envasado al vacío de Campo Sur)", "1 paquete de rúcula", "1 paquete de queso Provolone Conaprole", "6 fetas de jamón artesanal", "1 cda de aceite de oliva", "1 cda de manteca", "Hilo de algodón"]}], "steps": ["Abrir el lomo al medio sin llegar a cortarlo entero, cada mitad, abrir nuevamente al medio.", "Salpimentar el lomo, colocar el jamón, el queso Provolone rallado grueso y la rúcula.", "Enrollarlo y atarlo.", "Sellar en sartén bien caliente con aceite de oliva y manteca, cocinarlo 4 minutos de cada lado más o menos."], "notes": null}, {"name": "Pangasius con manteca y almendras", "category": "Pescados", "source": "Loli Battro", "servings": "4 porciones", "ingredients": [{"group": null, "items": ["4 filetes de pangasius", "1 bouquet garni (salvia, perejil y tomillo frescos)", "50 grs de manteca", "200 grs de almendras fileteadas", "1 copa de vino blanco (cosecha tardía)"]}], "steps": ["Picar las hierbas, sazonar los filetes.", "Cocinarlos en la plancha/sartén de teflón bien caliente con 1 cda de manteca.", "Mientras se cocinan, colocar las almendras en sartén y dorar.", "Agregar el vino y evaporar, agregar la manteca y revolver hasta formar una salsa.", "Salsear los filetes con la manteca de almendras."], "notes": null}, {"name": "Lemon pie", "category": "Dulces", "source": "Loli Battro", "servings": null, "ingredients": [{"group": "Masa sablée", "items": ["Manteca pomada 90 g", "Azúcar 50 g", "Yema 1 u", "Harina 150 g"]}, {"group": "Crema de limón", "items": ["Yemas 3 u", "Huevos 2 u", "Jugo y ralladura de limón 1 u", "Azúcar 125 g", "Almidón de maíz 10 g", "Manteca 80 g (fría)"]}, {"group": "Merengue italiano", "items": ["Claras 100 g", "Azúcar 200 g", "Agua 100 g"]}], "steps": ["Masa: Batir a blanco la manteca con el azúcar. Agregar la yema y luego la harina. Refrigerar 15 minutos.", "Estirar la masa, enmoldar. Cubrir con film y rellenar con porotos. Refrigerar 10 minutos.", "Hornear a 170°C durante 10 minutos, retirar los porotos y terminar la cocción hasta que esté dorada. Enfriar.", "Crema: Mezclar las yemas, huevos, ralladura, jugo, azúcar y almidón.", "Cocinar a fuego bajo, revolviendo constantemente, hasta que espese.", "Retirar del fuego, agregar la manteca fría en cubos y mezclar hasta lograr una crema lisa. Enfriar y rellenar la tarta.", "Merengue: Colocar el azúcar en cacerola, cubrir con agua y cocinar a 118°C.", "Montar las claras a nieve cuando el almíbar esté casi a punto.", "Incorporar el almíbar en forma de hilo sin dejar de batir. Continuar hasta que esté frío.", "Espatular o manguear sobre la tarta. Gratinar con soplete si se desea."], "notes": null}, {"name": "Torta Nutella", "category": "Dulces", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["200 grs de galletitas Chiquilín", "100 grs de manteca", "1 pote de Nutella (400 grs)", "300 de chocolate blanco", "20 medallones para decorar", "3 cdas de crema doble"]}], "steps": ["Derretir la manteca, deshacer las galletitas y entreverar.", "Apretar sobre molde de tarta y hornear 10 minutos en horno fuerte.", "Dejar enfriar, colocar la Nutella.", "Derretir el chocolate con la crema doble, dejar enfriar un poco.", "Bañar la tarta y decorar con medallones de chocolate blanco."], "notes": null}, {"name": "Pizza Margarita", "category": "Panes", "source": "Gabriela Miconi - Gato Dumas", "servings": null, "ingredients": [{"group": null, "items": ["60 cm3 aceite de oliva", "Salsa de tomate c/n", "150 gr de tomates", "150 gr de queso mozzarella", "Sal", "Pimienta negra molida", "20 gr de albahaca fresca", "1 cda de ajo picado macerado en oliva"]}], "steps": ["Extender la masa sobre una superficie ligeramente enharinada hasta el formato deseado.", "Untar la masa con la mitad del aceite de oliva.", "Verter con un cucharón la salsa de tomate y disponer encima los tomates cortados en cubos o rodajas y las lonchas de mozzarella fresca.", "Rociar la pizza con el aceite restante, sal y pimienta negra.", "Pasar a la piedra de pizza o placa de horno caliente y hornear de 20 a 25 minutos hasta que quede crujiente y dorada.", "Esparcir las hojas de albahaca y colocar por encima el ajo picado macerado en oliva."], "notes": "Variantes de queso: caccio cavallo o dambo Claldy."}, {"name": "Focaccia de papa y romero", "category": "Panes", "source": "Gabriela Miconi - Gato Dumas", "servings": null, "ingredients": [{"group": null, "items": ["250 gr harina 0000 (o 3 ceros)", "1 cdta de sal", "50 gr puré de papas", "10 gr levadura fresca", "Romero fresco", "Sal gruesa", "60 cm3 aceite de oliva"]}], "steps": ["Mezclar la harina, la sal y la levadura en un bowl.", "Formar un hueco en el centro y verter el aceite de oliva, el puré de papas y agua tibia si fuera necesario.", "Incorporar los ingredientes de a poco hasta formar una masa blanda.", "Pasar a superficie enharinada y amasar por 10 minutos.", "Untar la superficie con aceite de oliva y dejar reposar tapada 30 minutos hasta que duplique.", "Amasar 2 minutos más para eliminar el exceso de aire. Extender y dar forma deseada.", "Colocar en molde para horno y dejar reposar hasta que duplique.", "Con los dedos realizar hendiduras de 2 cm de hondo. Rociar con aceite de oliva y espolvorear con sal gruesa y romero.", "Hornear entre 20 y 25 minutos hasta que suba y se dore. Cubrir con paño y dejar enfriar 15 minutos."], "notes": "Variantes: puré de calabaza o puré de boniato en lugar de papa. Amasar con semolín para que quede crocante."}, {"name": "Ñoquis de boniato con burro y salvia", "category": "Pastas", "source": "Loli Battro", "servings": null, "ingredients": [{"group": "Ñoquis", "items": ["1 kg de boniatos", "250 grs de harina", "Pimienta, nuez moscada y sal a gusto"]}, {"group": "Salsa burro y salvia", "items": ["200 grs de manteca", "1 ramo de salvia seca (1 cajita Campo Claro)"]}], "steps": ["Cocinar los boniatos en agua con cáscara, pelarlos, hacer un puré.", "Agregar sal, pimienta y nuez moscada.", "Agregar la harina de a poco a medida que va tomando, cuanta menos mejor (a más harina más duros).", "Formar cilindros y cortar los ñoquis.", "Cocinar los ñoquis en olla con agua hirviendo.", "Retirar con espumadera cuando suban a la superficie.", "Salsa: Colocar la manteca en sartén con las hojas de salvia a fuego bajo.", "Derretir y dejar dorar (color marroncito sin que se llegue a quemar).", "Servir los ñoquis salseados con burro y salvia."], "notes": null}, {"name": "Chutney de peras", "category": "Salsas", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["Peras en cubos pequeños 50 g", "Pasas de uva hidratadas 10 g", "Jugo de limón para conservar la pera", "Cebolla en cubitos 30 g", "Jengibre rallado 10 g", "Cardamomo una pizca", "Vinagre de alcohol 25 ml", "Azúcar negro 20 g", "Sal y pimienta blanca"]}], "steps": ["Cocinar la cebolla en cubitos con el jengibre rallado.", "Agregar las peras en cubos con el jugo de limón.", "Incorporar las pasas hidratadas, el vinagre, el azúcar negro y el cardamomo.", "Cocinar a fuego bajo hasta que las peras estén tiernas y la mezcla espese.", "Condimentar con sal y pimienta blanca."], "notes": null}, {"name": "Ensalada con queso Brie", "category": "Ensaladas", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["Berro", "Espinaca tierna", "Peras", "Nueces caramelizadas al aceto", "Estragón", "Queso Brie"]}], "steps": ["Lavar y secar las hojas de berro y espinaca tierna.", "Cortar las peras en láminas finas.", "Caramelizar las nueces con aceto balsámico.", "Disponer las hojas, las peras y el queso Brie en trozos.", "Decorar con nueces caramelizadas y estragón fresco."], "notes": null}, {"name": "Ensalada con salmón ahumado", "category": "Ensaladas", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["Hojas verdes", "Salmón ahumado", "Lima", "Palta", "Eneldo", "Aceite de lima"]}], "steps": ["Disponer las hojas verdes como base.", "Colocar el salmón ahumado en trozos o fetas.", "Cortar la palta en láminas.", "Aliñar con aceite de lima y jugo de lima.", "Decorar con eneldo fresco."], "notes": null}, {"name": "Havanette", "category": "Dulces", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["125 gr de manteca", "2 cucharadas soperas de azúcar impalpable", "8 de harina", "1 cdta de royal", "400 gr de dulce de leche", "150 gr de chocolate", "2 cdas de crema"]}], "steps": ["En una procesadora poner la manteca fría junto con el azúcar y la harina y el royal.", "Colocar en el molde con las manos y paciencia. Tiene que quedar finita.", "Hornear a 200 grados. Dejar enfriar.", "Cubrir con bastante dulce de leche.", "Derretir el chocolate y agregar una o dos cucharadas de crema.", "Cubrir la torta con el ganache y dejar enfriar."], "notes": null}, {"name": "Lasaña vegetariana", "category": "Pastas", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["Aceite de oliva c/n", "2 zanahorias", "2 zapallitos", "1 cebolla", "1 puerro", "1 morrón", "1 berenjena", "250 gr de queso cuartirolo", "Salsa de tomate", "Salsa blanca ligera", "Queso parmesano rallado", "Masa de lasaña fresca"]}], "steps": ["Cortar las verduras y saltearlas por separado salpimentando.", "Preparar una salsa blanca ligera. Cortar el queso en cuadraditos.", "En una asadera honda y rectangular colocar un poco de salsa de tomate en el fondo.", "Colocar dos hojas de lasaña. Poner la mitad de las verduras. Por encima un poco de salsa blanca.", "Colocar otra capa de lasaña. Colocar una capa de queso.", "Otra capa de lasaña y un poco de salsa blanca. La otra mitad de verduras.", "Terminar con una capa de lasaña y salsa blanca. Un poco de salsa de tomate y queso parmesano."], "notes": null}, {"name": "Vol-au-vent de pollo", "category": "Entradas", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["4 vol-au-vent N5 (del Museo)", "1 suprema de pollo", "200 grs de panceta en trozo", "1 bandeja de champiñones frescos", "1/4 lt de crema doble light", "1 caldo de pollo Knorr", "200 de vino blanco dulce (bueno)", "2 cebollas", "5 cdas de aceite de oliva", "Un trozo de queso parmesano 100/150 grs", "1 cda de manteca", "Sal, pimienta, nuez moscada"]}], "steps": ["Cortar la panceta en dados, saltar en sartén hasta dorar. Retirar la panceta y la grasa.", "Agregar 4 cdas de aceite de oliva y saltar las cebollas picadas chiquitas. Retirar.", "Colocar 1 cda de manteca y dorar los champiñones en cuartos, retirar.", "Agregar 1 cda de aceite de oliva y sellar la suprema hasta dorar bien. Retirar y cortarla en cubos de 1x1 cm.", "Desglasar el sartén con el vino y evaporar el alcohol un poco.", "Agregar la crema doble, el caldo de pollo y todo lo demás.", "Si es necesario agregar un vasito de leche con una cda de maicena disuelta para espesar.", "Salpimentar, colocar el relleno en los moldes, cubrir con parmesano rallado y cocinar en horno medio hasta dorar (más o menos 25 minutos)."], "notes": null}, {"name": "Risotto ai funghi", "category": "Pastas", "source": "Loli Battro", "servings": "5 personas", "ingredients": [{"group": null, "items": ["500 grs de arroz Carnaroli, Vialone nano o Arborio (Gallo Argentino o cualquiera Italiano)", "200 vino blanco cosecha tardía", "200 grs de hongos frescos variados", "200 grs de hongos secos", "200 grs de manteca", "200 grs de queso parmesano fresco para rallar", "2 cebollas picadas chiquita", "4 saborizadores Knorr de hongos", "Cilantro o perejil picado"]}], "steps": ["Hacer un caldo con 1 lt de agua y los saborizadores.", "Colocar los hongos secos en bowl con agua hirviendo, dejar 15 minutos. Colar el agua y usarla primero que el caldo.", "Dorar la cebolla en 3 cdas de manteca, agregar el arroz hasta transparentar.", "Agregar el vino y cuando lo absorba, comenzar a agregar el caldo de a poco.", "A los 5 minutos colocar los hongos y seguir con el proceso hasta que el arroz esté a punto (más o menos 15 minutos).", "Agregar la manteca a temperatura ambiente y el queso parmesano.", "Espolvorear con cilantro o perejil picado y servir."], "notes": null}, {"name": "Goulash con Spätzle", "category": "Carnes", "source": "Gran Diploma de Cocinero - Gato Dumas", "servings": null, "ingredients": [{"group": "Goulash", "items": ["Cebolla 50 gr", "Roast-beef 200 gr (bola de lomo)", "Harina 50 gr", "Aceite de girasol 10 cc", "Manteca 5 gr", "Extracto de tomate 5 gr", "Paprika 10 gr", "Fondo de res 200 cc", "Sal c/n", "Pimienta negra c/n"]}, {"group": "Spätzle", "items": ["Huevo 1 u", "Agua gasificada 25 cc", "Leche 25 cc", "Harina 100 gr", "Nuez moscada 1 pizca", "Sal c/n", "Pimienta c/n", "Manteca 20 gr"]}], "steps": ["Goulash: Cortar la cebolla doble cincelado. Desgrasar la carne y cortar en cubos de 1 cm.", "Salpimentar antes de enharinar. Enharinar los cubos justo antes de cocinar.", "Saltear los cubos en cacerola con aceite caliente. Reservar.", "En la misma cacerola sudar la cebolla. Incorporar el extracto de tomate y la paprika.", "Cocinar un minuto y añadir la carne. Desglasar con el fondo de res.", "Tapar y guisar hasta que la carne esté bien tierna (aproximadamente 40 minutos). Salpimentar.", "Spätzle: Mezclar los ingredientes líquidos e incorporar la harina con nuez moscada. Salpimentar.", "Reservar con film en la heladera 10 minutos.", "Pasar la pasta por máquina para Spätzle directamente sobre agua salada hirviendo.", "Hervir hasta que floten, escurrir y refrescar en agua fría.", "Para servir, saltear los Spätzle en manteca y salpimentar."], "notes": null}, {"name": "Pasta frola", "category": "Dulces", "source": "Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["125 g de manteca", "250 g de harina", "4 cdas de azúcar", "1 yema", "4 cdas de agua hirviendo", "500 g de dulce de membrillo", "Ralladura de 1 limón", "Agua fría c/n"]}], "steps": ["Mezclar en un bol la harina junto a la manteca, trabajando con la punta de los dedos armar un arenado.", "Agregar el azúcar y la ralladura de limón.", "Agregar la yema y un poco de agua fría. Unir la masa y llevar a la heladera por un rato.", "Pisar el dulce de membrillo armando un puré. Si está muy duro agregarle unas cucharadas de agua hirviendo.", "Estirar la masa y colocarla en una tartera.", "Poner el dulce por encima y terminar con tiras de masa por arriba.", "Hornear en horno a 180°C."], "notes": null}, {"name": "Volcán de chocolate (versión Gato Dumas)", "category": "Dulces", "source": "Gran Diploma de Pastelero - Gato Dumas", "servings": null, "ingredients": [{"group": "Volcán", "items": ["Yemas 4 u", "Azúcar 50 gr", "Claras 2 u", "Manteca 40 gr", "Chocolate 100 gr", "Harina 2 cdas"]}, {"group": "Pastillas de ganache", "items": ["Crema 50 gr", "Chocolate 50 gr"]}, {"group": "Salsa de frutillas y pimientos", "items": ["Frutillas 200 gr", "Pimiento colorado 1/2 u", "Azúcar 200 gr", "Agua 200 gr"]}], "steps": ["Batir las yemas a punto cinta con el azúcar. Aparte, batir las claras a nieve.", "Derretir la manteca junto con el chocolate.", "Mezclar las yemas con el chocolate derretido y agregar las claras en forma envolvente.", "Por último, añadir la harina tamizada.", "Rellenar moldes individuales bien enmantecados y enharinados.", "Disponer las pastillas de ganache en el centro y cubrir con la mezcla. Congelar.", "Pastillas: Llevar a ebullición la crema y volcar sobre el chocolate picado. Mezclar, alisar, congelar y cortar discos.", "Hornear a 180°C durante 12 minutos. Desmoldar sobre plato.", "Salsa: Hervir agua con azúcar y pimiento en brunoise 6 minutos. Agregar frutillas en cuartos. Enfriar."], "notes": null}, {"name": "Peras en vino sobre filo caramelizado", "category": "Dulces", "source": "Gran Diploma de Pastelero - Gato Dumas", "servings": null, "ingredients": [{"group": "Masa filo caramelizada", "items": ["Masa filo 3 hojas", "Manteca derretida 50 gr", "Azúcar impalpable 50 gr"]}, {"group": "Peras al vino", "items": ["Peras 2 u", "Azúcar 80 gr", "Vino tinto 300 gr", "Canela c/n"]}, {"group": "Helado de especias", "items": ["Leche 250 gr", "Crema 450 gr", "Jengibre molido c/n", "Canela c/n", "Clavo de olor c/n", "Anís verde molido c/n", "Nuez moscada c/n", "Azúcar 100 gr", "Azúcar negro 80 gr", "Yemas 6 u"]}], "steps": ["Masa filo: Pincelar con manteca derretida y espolvorear con azúcar impalpable. Superponer dos hojas. Cortar discos. Hornear a 160°C hasta dorado.", "Peras: Llevar a ebullición el vino, azúcar y canela. Agregar las peras en cubos pequeños.", "Cocinar hasta que estén tiernas sin perder la forma. Retirar del vino.", "Reducir una parte del vino de cocción hasta consistencia de almíbar.", "Helado: Llevar la leche a ebullición con la crema y las especias.", "Batir a blanco las yemas con el azúcar y agregar la leche caliente.", "Cocinar a 85°C hasta que nappe la cuchara. Mixar, enfriar y turbinar."], "notes": null}, {"name": "Cannelloni de verduras y pollo", "category": "Pastas", "source": "Gabriela Miconi - Gato Dumas", "servings": null, "ingredients": [{"group": "Masa", "items": ["130 gr harina 0000", "10 gr sal", "10 cm3 aceite de oliva", "1 huevo"]}, {"group": "Relleno", "items": ["1/2 pechuga de pollo", "100 gr espinacas", "30 gr cebolla", "25 gr nueces", "25 gr queso Parmesano", "50 gr jamón cocido", "50 cc aceite de girasol", "25 cc crema de leche", "Sal y pimienta"]}, {"group": "Salsa bechamel", "items": ["150 cc leche", "10 gr manteca", "10 gr harina", "Nuez moscada c/n", "50 cc crema de leche"]}, {"group": "Armado", "items": ["2 tomates", "20 gr Parmesano rallado", "Manteca c/n"]}], "steps": ["Hacer la masa y pasarla por sobadora laminándola finamente. Cortar en rectángulos de 12x8 cm.", "Cortar pollo en cubos. Limpiar espinacas. Cortar cebolla doble cincelado. Picar nueces. Cortar jamón en tiras.", "Saltear el pollo y luego las verduras con el jamón. Procesar. Incorporar crema y queso. Salpimentar y llevar a frío.", "Pasar las láminas de masa por agua hervida 2 minutos. Cortar cocción con agua fría. Armar los canelones.", "Salsa: Cocinar manteca con harina 2 minutos. Agregar leche con batidor. Cocinar 1 minuto más. Incorporar crema. Condimentar.", "Armado: Disponer bechamel sobre placa enmantecada. Esparcir tomate concassé. Colocar cannelloni.", "Cubrir con el resto de bechamel. Espolvorear con queso y pellas de manteca. Gratinar."], "notes": null}, {"name": "Lasaña de carne y hongos", "category": "Pastas", "source": "Gabriela Miconi - Gato Dumas", "servings": null, "ingredients": [{"group": "Masa", "items": ["130 gr harina 0000", "10 gr sal", "10 cm3 aceite de oliva", "1 huevo"]}, {"group": "Relleno", "items": ["30 gr cebolla", "30 gr zanahoria", "15 gr apio", "1 tomate", "10 gr hongos secos", "15 cc aceite de maíz", "150 gr carne picada especial", "50 cc vino blanco", "Caldo de carne c/n", "1 hoja de laurel", "Sal y pimienta"]}, {"group": "Armado", "items": ["150 cc salsa bechamel", "50 cc crema de leche", "30 gr Parmesano rallado"]}], "steps": ["Hacer la masa y laminarla finamente. Cortar láminas del tamaño del molde. Cocinar en agua hirviendo y cortar cocción con agua fría.", "Cortar cebolla doble cincelado, zanahoria y apio en cubitos. Preparar tomate concassé. Hidratar hongos en caldo.", "Saltear zanahoria, cebolla y apio hasta dorar. Agregar carne picada. Desglasar con vino blanco.", "Agregar tomate concassé, caldo, laurel y hongos picados. Cocinar a fuego bajo 5 minutos.", "Realizar salsa bechamel. Incorporar crema. Condimentar. Rallar Parmesano.", "Armado: Disponer una lámina de masa en el fondo. Encima bechamel y una capa de relleno. Repetir.", "Terminar con lámina de masa recubierta con bechamel. Espolvorear con Parmesano y pellas de manteca. Gratinar."], "notes": null}, {"name": "Masa sablée de vainilla", "category": "Dulces", "source": "Gran Diploma de Pastelero - Gato Dumas", "servings": null, "ingredients": [{"group": "Masa", "items": ["Harina 150 gr", "Manteca fría 100 gr", "Azúcar impalpable 50 gr", "Yema 1 u", "Esencia de vainilla c/n"]}, {"group": "Decoración", "items": ["Clara 1 u", "Azúcar común 25 gr", "Almendras 25 gr", "Mermelada de frambuesa 50 gr", "Dulce de leche repostero 100 gr", "Azúcar impalpable 25 gr"]}], "steps": ["Tamizar la harina con el azúcar impalpable y armar una corona.", "Disponer en el centro la manteca en cubos y sablear con ayuda de un cornet.", "Formar nuevamente la corona, agregar la yema y la esencia de vainilla en el centro.", "Unir sin trabajar demasiado hasta lograr una masa lisa. Refrigerar 15 minutos.", "Estirar con palo de amasar sobre mesada espolvoreada con harina.", "Cortar las masitas de la forma deseada y disponer sobre placa enmantecada o Silpat. Refrigerar 10 minutos.", "Hornear a 170°C hasta que estén doradas. Enfriar antes de decorar o rellenar."], "notes": null}, {"name": "Masa sablée de cacao", "category": "Dulces", "source": "Gran Diploma de Pastelero - Gato Dumas", "servings": null, "ingredients": [{"group": null, "items": ["Harina 135 gr", "Cacao amargo 15 gr", "Manteca 100 gr", "Azúcar impalpable 50 gr", "Yema 1 u"]}], "steps": ["Tamizar la harina con el azúcar impalpable y el cacao y armar una corona.", "Disponer en el centro la manteca en cubos y sablear con ayuda de un cornet.", "Formar nuevamente la corona, agregar la yema en el centro.", "Unir sin trabajar demasiado hasta lograr una masa lisa. Refrigerar 15 minutos.", "Estirar sobre mesada espolvoreada con harina. Cortar las masitas.", "Disponer sobre placa enmantecada o Silpat. Refrigerar 10 minutos.", "Hornear a 170°C hasta que estén doradas. Enfriar antes de decorar o rellenar."], "notes": null}, {"name": "Focaccia", "category": "Panes", "source": "Garden Parque Miramar", "servings": null, "ingredients": [{"group": null, "items": ["400 grs de harina", "15 grs de levadura", "1 vaso de agua tibia", "2 cucharadas de aceite de oliva", "1 cucharadita de sal", "Sal marina c/n", "Romero fresco c/n"]}], "steps": ["Colocar la harina en forma de corona con la sal por fuera.", "En un bowl disolver la levadura con un poco de agua tibia.", "Hacer un hueco en el centro de la corona y agregar la levadura disuelta y el aceite. Empezar a amasar agregando el resto del agua.", "Amasar enérgicamente. Cuando la masa esté lisa armar un bollo y dejar descansar tapada hasta que doble su volumen.", "Dividir la masa en porciones. Estirar con palote. Colocar en asadera previamente aceitada. Dejar levar.", "Marcar con los dedos, en cada orificio colocar un poco de romero. Esparcir sal marina e incorporar aceite de oliva.", "Dejar levar 10 minutos más y cocinar a 180°C por 15/20 minutos.", "Desmoldar y dejar enfriar sobre una rejilla.", "Congelar una vez frío y cuando se quiera consumir sacar un rato antes, cortar en finas tajadas y tostar en horno caliente."], "notes": null}, {"name": "Grisines saborizados", "category": "Panes", "source": "Garden Parque Miramar - Loli Battro", "servings": null, "ingredients": [{"group": null, "items": ["500 gr de harina", "30 gr de levadura fresca", "12 gr de sal", "250 cc de agua tibia", "30 gr de manteca blanda", "Tomillo c/n", "1 huevo", "150 gr de queso rallado grueso"]}], "steps": ["Colocar la harina en forma de corona con la sal por fuera.", "En un bowl disolver la levadura con un poco de agua tibia.", "Hacer un hueco en el centro de la corona y agregar la levadura disuelta. Empezar a amasar agregando el resto del agua.", "Cuando se hayan integrado todos los ingredientes agregar la manteca y amasar enérgicamente.", "Agregar el queso rallado. Cuando la masa esté lisa armar un bollo y dejar descansar tapada hasta que doble su volumen.", "Estirar la masa en forma rectangular. Pintar con huevo y esparcir el tomillo.", "Cortar en bastones de 1 cm de espesor. Darle forma a los grisines.", "Colocarlos en placas y hornear a 220°C por 10 minutos."], "notes": null}];
+
+const allCategories = ["Todas","Entradas","Ensaladas","Pastas","Carnes","Pescados","Dulces","Panes","Tartas","Salsas","Guarniciones","Otros"];
+let activeCategory = "Todas";
+let searchTerm = "";
+
+const catContainer = document.getElementById("categories");
+const grid = document.getElementById("grid");
+const noResults = document.getElementById("no-results");
+const overlay = document.getElementById("overlay");
+const detail = document.getElementById("detail");
+const detailInner = document.getElementById("detail-inner");
+const searchInput = document.getElementById("search");
+
+function renderCategories() {
+  catContainer.innerHTML = allCategories.map(c =>
+    `<span class="pill ${c === activeCategory ? 'active' : ''}" data-cat="${c}">${c}</span>`
+  ).join("");
+}
+
+function filterRecipes() {
+  const term = searchTerm.toLowerCase();
+  return recipes.filter(r => {
+    const matchCat = activeCategory === "Todas" || r.category === activeCategory;
+    const matchSearch = !term || r.name.toLowerCase().includes(term) || (r.source && r.source.toLowerCase().includes(term)) || r.category.toLowerCase().includes(term);
+    return matchCat && matchSearch;
+  });
+}
+
+function renderGrid() {
+  const filtered = filterRecipes();
+  if (filtered.length === 0) {
+    grid.style.display = "none";
+    noResults.style.display = "block";
+  } else {
+    grid.style.display = "grid";
+    noResults.style.display = "none";
+    grid.innerHTML = filtered.map((r, i) => `
+      <div class="card" data-idx="${recipes.indexOf(r)}">
+        <h3>${r.name}</h3>
+        <div class="meta">
+          <span class="cat">${r.category}</span>
+          ${r.source ? `<span class="src">${r.source}</span>` : ''}
+        </div>
+      </div>
+    `).join("");
+  }
+}
+
+function openRecipe(idx) {
+  const r = recipes[idx];
+  let html = `<button class="back-btn" id="back-btn">Volver</button>`;
+  html += `<h2>${r.name}</h2>`;
+  html += `<div class="detail-meta"><span class="cat">${r.category}</span>`;
+  if (r.source) html += `<span class="src">${r.source}</span>`;
+  if (r.servings) html += `<span class="servings">${r.servings}</span>`;
+  html += `</div>`;
+  html += `<h4>Ingredientes</h4>`;
+  r.ingredients.forEach(g => {
+    if (g.group) html += `<p style="font-weight:bold;margin:10px 0 4px;font-size:0.95rem;">${g.group}</p>`;
+    html += `<ul>${g.items.map(item => `<li>${item}</li>`).join("")}</ul>`;
+  });
+  html += `<h4>Procedimiento</h4><ol>${r.steps.map(s => `<li>${s}</li>`).join("")}</ol>`;
+  if (r.notes) {
+    html += `<div class="notes-box"><strong>Notas:</strong> ${r.notes}</div>`;
+  }
+  detailInner.innerHTML = html;
+  overlay.classList.add("open");
+  detail.classList.add("open");
+  document.getElementById("back-btn").addEventListener("click", closeRecipe);
+  document.body.style.overflow = "hidden";
+}
+
+function closeRecipe() {
+  overlay.classList.remove("open");
+  detail.classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+catContainer.addEventListener("click", e => {
+  if (e.target.classList.contains("pill")) {
+    activeCategory = e.target.dataset.cat;
+    renderCategories();
+    renderGrid();
+  }
+});
+
+searchInput.addEventListener("keyup", () => {
+  searchTerm = searchInput.value;
+  renderGrid();
+});
+
+grid.addEventListener("click", e => {
+  const card = e.target.closest(".card");
+  if (card) openRecipe(parseInt(card.dataset.idx));
+});
+
+overlay.addEventListener("click", closeRecipe);
+
+renderCategories();
+renderGrid();
+</script>
+</body>
+</html>
